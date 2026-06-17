@@ -9,6 +9,7 @@ const registerSchema = z.object({
   name: z.string().min(1, 'name required'),
   email: z.string().email('valid email required'),
   password: z.string().min(6, 'password must be at least 6 chars'),
+  role: z.enum(['user', 'vendor']).optional(),
 });
 
 const loginSchema = z.object({

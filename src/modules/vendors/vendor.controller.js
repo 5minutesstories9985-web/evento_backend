@@ -12,15 +12,19 @@ export const nearby = asyncHandler(async (req, res) => {
   );
 });
 
+export const mine = asyncHandler(async (req, res) => {
+  res.json(await service.listMine(req.user.id));
+});
+
 export const create = asyncHandler(async (req, res) => {
-  res.status(201).json(await service.create(req.body));
+  res.status(201).json(await service.createForOwner(req.user.id, req.body));
 });
 
 export const update = asyncHandler(async (req, res) => {
-  res.json(await service.update(req.params.id, req.body));
+  res.json(await service.updateOwned(req.user.id, req.params.id, req.body));
 });
 
 export const remove = asyncHandler(async (req, res) => {
-  await service.remove(req.params.id);
+  await service.removeOwned(req.user.id, req.params.id);
   res.status(204).end();
 });

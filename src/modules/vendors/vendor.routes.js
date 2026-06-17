@@ -11,6 +11,7 @@ const nearbySchema = z.object({
   category: z.string().optional(),
 });
 
+router.get('/mine', controller.mine);
 router.get('/search', controller.search);
 router.get('/nearby', validate(nearbySchema, 'query'), controller.nearby);
 router.post('/', controller.create);

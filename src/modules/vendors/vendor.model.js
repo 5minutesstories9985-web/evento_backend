@@ -23,6 +23,8 @@ const vendorSchema = new mongoose.Schema(
     address: { type: String, default: '' },
     location: { type: pointSchema, required: true },
     source: { type: String, enum: ['owned', 'osm'], default: 'owned' },
+    // Set when a vendor self-registers this listing (null for seeded data).
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
   },
   { timestamps: true }
 );
