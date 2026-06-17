@@ -30,17 +30,39 @@ export function osmSupports(category) {
   return Boolean(OSM_TAGS[category]);
 }
 
+// Photon (komoot) — free OSM geocoder that, unlike Nominatim, allows datacenter
+// traffic (Railway/cloud). Primary; Nominatim is the fallback for local/dev.
+async function photonGeocode(q) {
+  const url = `${env.photonUrl}/api?limit=1&q=${encodeURIComponent(q)}`;
+  const data = await getJson(url);
+  const f = data.features?.[0];
+  if (!f) return null;
+  const [lng, lat] = f.geometry.coordinates;
+  const p = f.properties || {};
+  const address = [p.name, p.city, p.state, p.country].filter(Boolean).join(', ');
+  return { lat, lng, address };
+}
+
+async function nominatimGeocode(q) {
+  const url = `${env.nominatimUrl}/search?format=jsonv2&limit=1&q=${encodeURIComponent(q)}`;
+  const data = await getJson(url);
+  if (!data.length) return null;
+  const top = data[0];
+  return { lat: parseFloat(top.lat), lng: parseFloat(top.lon), address: top.display_name };
+}
+
 /** Geocode a free-text venue → { lat, lng, address } (cached 30 days). */
 export async function geocode(query) {
   const q = query.trim();
   if (!q) return null;
   return cached(`geocode:${q.toLowerCase()}`, 60 * 60 * 24 * 30, () =>
     throttle(async () => {
-      const url = `${env.nominatimUrl}/search?format=jsonv2&limit=1&q=${encodeURIComponent(q)}`;
-      const data = await getJson(url);
-      if (!data.length) return null;
-      const top = data[0];
-      return { lat: parseFloat(top.lat), lng: parseFloat(top.lon), address: top.display_name };
+      try {
+        return await photonGeocode(q);
+      } catch (e) {
+        console.warn('[geo] photon failed, trying nominatim:', e.message);
+        return nominatimGeocode(q);
+      }
     })
   );
 }

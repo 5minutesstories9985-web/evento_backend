@@ -8,6 +8,7 @@ export const env = {
   jwtExpires: process.env.JWT_EXPIRES || '30d',
   groqApiKey: process.env.GROQ_API_KEY || '',
   groqModel: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+  photonUrl: process.env.PHOTON_URL || 'https://photon.komoot.io',
   nominatimUrl: process.env.NOMINATIM_URL || 'https://nominatim.openstreetmap.org',
   overpassUrl: process.env.OVERPASS_URL || 'https://overpass-api.de/api/interpreter',
   osrmUrl: process.env.OSRM_URL || 'https://router.project-osrm.org',
