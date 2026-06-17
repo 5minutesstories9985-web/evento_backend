@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { validate } from '../../middlewares/validate.js';
 import { aiLimiter } from '../../middlewares/rateLimit.js';
+import { requireRole } from '../../middlewares/auth.js';
 import * as controller from './event.controller.js';
 
 const router = Router();
@@ -25,11 +26,11 @@ const createSchema = z.object({
 
 const categoryQuery = z.object({ category: z.string().min(1, 'category required') });
 
-router.post('/', validate(createSchema), controller.create);
+router.post('/', requireRole('vendor'), validate(createSchema), controller.create);
 router.get('/', controller.list);
 router.get('/:id', controller.getOne);
-router.put('/:id', controller.update);
-router.delete('/:id', controller.remove);
+router.put('/:id', requireRole('vendor'), controller.update);
+router.delete('/:id', requireRole('vendor'), controller.remove);
 router.get('/:id/nearby-services', validate(categoryQuery, 'query'), aiLimiter, controller.nearbyServices);
 router.get('/:id/recommendations', validate(categoryQuery, 'query'), aiLimiter, controller.recommendations);
 

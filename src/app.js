@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
-import { requireAuth } from './middlewares/auth.js';
+import { requireAuth, requireRole } from './middlewares/auth.js';
 import { errorHandler, notFound } from './middlewares/error.js';
 
 import authRoutes from './modules/auth/auth.routes.js';
@@ -37,7 +37,7 @@ export function createApp() {
   app.use('/api/attendees', ownedCrud(Attendee));
   app.use('/api/expenses', ownedCrud(Expense));
   app.use('/api/reminders', ownedCrud(Reminder));
-  app.use('/api/bookings', ownedCrud(Booking));
+  app.use('/api/bookings', requireRole('user'), ownedCrud(Booking));
 
   app.use(notFound);
   app.use(errorHandler);

@@ -23,17 +23,18 @@ export async function createEvent(owner, data) {
   return Event.create({ ...(await withLocation(data)), owner });
 }
 
-export async function listEvents(owner, { page = 1, limit = 50 }) {
+export async function listEvents({ page = 1, limit = 50, owner } = {}) {
   const skip = (page - 1) * limit;
+  const filter = owner ? { owner } : {};
   const [items, total] = await Promise.all([
-    Event.find({ owner }).sort({ dateTime: 1 }).skip(skip).limit(limit).lean(),
-    Event.countDocuments({ owner }),
+    Event.find(filter).sort({ dateTime: 1 }).skip(skip).limit(limit).lean(),
+    Event.countDocuments(filter),
   ]);
   return { items, total, page, limit };
 }
 
-export async function getEvent(owner, id) {
-  const event = await Event.findOne({ _id: id, owner });
+export async function getEvent(id) {
+  const event = await Event.findById(id);
   if (!event) {
     const err = new Error('Event not found');
     err.status = 404;
