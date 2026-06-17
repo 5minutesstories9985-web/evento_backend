@@ -11,6 +11,8 @@ import eventRoutes from './modules/events/event.routes.js';
 import vendorRoutes from './modules/vendors/vendor.routes.js';
 import mapsRoutes from './modules/maps/maps.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
+import paymentRoutes from './modules/payments/payments.routes.js';
+import notificationRoutes from './modules/notifications/notifications.routes.js';
 import { ownedCrud } from './modules/crud/ownedCrud.js';
 import { Ticket, Attendee, Expense, Reminder, Booking } from './modules/crud/models.js';
 
@@ -33,6 +35,8 @@ export function createApp() {
   app.use('/api/vendors', vendorRoutes);
   app.use('/api/maps', mapsRoutes);
   app.use('/api/ai', aiRoutes);
+  app.use('/api/payments', paymentRoutes);
+  app.use('/api/notifications', notificationRoutes);
   app.use('/api/tickets', ownedCrud(Ticket));
   app.use('/api/attendees', ownedCrud(Attendee));
   app.use('/api/expenses', ownedCrud(Expense));
