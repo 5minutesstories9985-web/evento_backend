@@ -9,6 +9,6 @@ export const budget = asyncHandler(async (req, res) => {
 
 export const chat = asyncHandler(async (req, res) => {
   const { eventId, message, history } = req.body;
-  const event = await events.getEvent(req.user.id, eventId);
+  const event = await events.getEvent(eventId);
   res.json(await service.chat(event, message, history));
 });

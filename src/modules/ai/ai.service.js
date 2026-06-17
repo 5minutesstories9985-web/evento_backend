@@ -57,17 +57,27 @@ export async function chat(event, message, history = []) {
     startingPrice: v.startingPrice,
   }));
 
-  const reply = await groqChat([
-    {
-      role: 'system',
-      content:
-        `You are the Smart Event Assistant for "${event.name}" (${event.category}) at ${event.venue}. ` +
-        `Answer concisely and recommend from these nearby vendors when relevant: ${JSON.stringify(context)}. ` +
-        'If none match, say so honestly.',
-    },
-    ...history.slice(-6),
-    { role: 'user', content: message },
-  ]);
-
-  return { reply, vendors: nearby };
+  try {
+    const reply = await groqChat([
+      {
+        role: 'system',
+        content:
+          `You are the Smart Event Assistant for "${event.name}" (${event.category}) at ${event.venue}. ` +
+          `Answer concisely and recommend from these nearby vendors when relevant: ${JSON.stringify(context)}. ` +
+          'If none match, say so honestly.',
+      },
+      ...history.slice(-6),
+      { role: 'user', content: message },
+    ]);
+    return { reply, vendors: nearby };
+  } catch (e) {
+    // Don't 500 the client on a Groq hiccup — degrade to the grounded vendor list.
+    console.warn('[ai] chat failed:', e.message);
+    return {
+      reply: nearby.length
+        ? 'I had trouble reaching the AI just now, but here are relevant vendors near your venue.'
+        : 'I had trouble reaching the AI just now. Please try again in a moment.',
+      vendors: nearby,
+    };
+  }
 }

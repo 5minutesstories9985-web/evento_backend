@@ -40,6 +40,16 @@ export async function getEvent(id) {
     err.status = 404;
     throw err;
   }
+  // Self-heal: events saved before geocoding worked have no location.
+  // Geocode once on read and persist so the map/assistant work next time.
+  if (!event.location?.coordinates?.length && event.venue) {
+    const healed = await withLocation({ venue: event.venue });
+    if (healed.location) {
+      event.location = healed.location;
+      event.venueAddress = healed.venueAddress;
+      await event.save();
+    }
+  }
   return event;
 }
 
