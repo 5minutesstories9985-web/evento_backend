@@ -18,11 +18,13 @@ function eventPoint(event) {
 async function gatherCandidates(event, category) {
   const point = eventPoint(event);
   const [owned, pois] = await Promise.all([
-    vendors.nearby({ lat: point.lat, lng: point.lng, category }),
+    vendors.nearby({ lat: point.lat, lng: point.lng, category }).catch(() => []),
     nearbyPois(point.lat, point.lng, category).catch(() => []),
   ]);
 
-  const fromOwned = owned.map((v) => ({
+  const fromOwned = owned
+    .filter((v) => v.location?.coordinates?.length)
+    .map((v) => ({
     name: v.name,
     category: v.category,
     phone: v.phone,

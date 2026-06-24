@@ -38,7 +38,10 @@ export async function chat(event, message, history = []) {
   let nearby = [];
   const coords = event.location?.coordinates;
   if (coords) {
-    nearby = await vendors.nearby({ lat: coords[1], lng: coords[0], limit: 20 });
+    // Don't let a geo/DB hiccup (e.g. missing 2dsphere index) 500 the chat — degrade to no context.
+    nearby = await vendors
+      .nearby({ lat: coords[1], lng: coords[0], limit: 20 })
+      .catch(() => []);
   }
 
   if (!groqEnabled()) {
